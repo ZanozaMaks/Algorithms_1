@@ -5,7 +5,7 @@ import java.util.Arrays;
 public class IntegerListImpl implements IntegerList {
 
 
-    private final Integer[] storage;
+    private Integer[] storage;
     private int size;
 
     public IntegerListImpl() {
@@ -19,7 +19,7 @@ public class IntegerListImpl implements IntegerList {
 
     @Override
     public Integer add(Integer item) {
-        validateSize();
+        growIfNeeded();
         validateItem(item);
         storage[size++] = item;
         return item;
@@ -27,7 +27,7 @@ public class IntegerListImpl implements IntegerList {
 
     @Override
     public Integer add(int index, Integer item) {
-        validateSize();
+        growIfNeeded();
         validateItem(item);
         validateIndex(index);
 
@@ -151,9 +151,9 @@ public class IntegerListImpl implements IntegerList {
         }
     }
 
-    private void validateSize() {
+    private void growIfNeeded() {
         if (size == storage.length) {
-            throw new StorageIsFullException();
+            grow();
         }
     }
 
@@ -164,6 +164,7 @@ public class IntegerListImpl implements IntegerList {
     }
 
     private void sort(Integer[] arr) {
+
         for (int i = 1; i < arr.length; i++) {
             int temp = arr[i];
             int j = 1;
@@ -172,7 +173,39 @@ public class IntegerListImpl implements IntegerList {
                 j--;
             }
             arr[j] = temp;
+        } 
+    }
+
+    private void quickSort(int [] arr,int begin, int end ) {
+        if (begin < end) {
+            int partitionIndex = partition (arr,begin,end);
+
+            quickSort(arr,begin, partitionIndex - 1);
+            quickSort(arr, partitionIndex + 1, end);
         }
+    }
+
+    private int partition(int[] arr, int begin, int end) {
+        int pivot = arr[end];
+        int i = (begin - 1);
+
+        for (int j = begin; j < end; j++) {
+            if (arr[j] <= pivot) {
+                i++;
+
+                swapElement(arr, i + 1, end);
+            }
+        }
+        
+        swapElement(arr, i + 1, end);
+        return i + 1;
+
+    }
+
+    private void swapElement(int[] arr, int k, int l) {
+        int temp = arr[k];
+        arr[k] = arr[l];
+        arr[l] = temp;
     }
 
     private boolean binarySearch(Integer[] arr, Integer item) {
@@ -193,6 +226,9 @@ public class IntegerListImpl implements IntegerList {
             }
         }
         return false;
+    }
+    private void grow() {
+        storage = Arrays.copyOf(storage, size + size / 2);
     }
 
 }
